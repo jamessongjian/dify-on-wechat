@@ -1,0 +1,16 @@
+{
+  "coze_api_base": "https://api.coze.cn",     # coze base url
+  "coze_api_key": "pat_jO2foFiGGJMyCYdQoATRmiGtt9TxDDDYPIjua99eh5VleNI09jRDJCMZ3FgZxdu9",                      # coze api key
+  "coze_bot_id": "7475272287328108579", # 根据url获取coze_bot_id https://www.coze.cn/space/{space_id}/bot/{bot_id}
+  "model": "coze",
+  "channel_type": "gewechat",
+  "gewechat_app_id": "",
+  "gewechat_token": "",
+  "gewechat_base_url": "http://39.105.175.239:2531/v2/api",
+  "gewechat_callback_url": "http://39.105.175.239:9919/v2/api/callback/collect",
+  "gewechat_download_url": "http://39.105.175.239:2532/download",
+  "single_chat_prefix": [""],
+  "single_chat_reply_prefix": "",
+  "group_chat_prefix": ["@一休"],
+  "group_name_white_list": ["ALL_GROUP"]
+}
