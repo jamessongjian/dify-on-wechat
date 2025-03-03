@@ -225,16 +225,42 @@ class ByteDanceCozeBot(Bot):
         if err is not None:
             return None, err
         completion_tokens, total_tokens = self._calc_tokens(session.messages, answer)
-        Reply(ReplyType.TEXT, answer)
+
+        # 处理图片URL
+        import re
+        image_urls = []
+        # 匹配 image_url=http(s)://... 格式的URL
+        pattern = r'image_url=(https?://[^\s]+)'
+        matches = re.finditer(pattern, answer)
+        
+        # 收集所有图片URL并从文本中删除
+        for match in matches:
+            image_url = match.group(1)
+            image_urls.append(image_url)
+            # 删除匹配到的image_url部分
+            answer = answer.replace(f'image_url={image_url}', '')
+        
+        # 发送文本回复
+        text_reply = Reply(ReplyType.TEXT, answer.strip())
+
+        # 如果有图片URL，下载并发送图片
+        if image_urls:
+            for image_url in image_urls:
+                image = self._download_image(image_url)
+                if image:
+                    return  Reply(ReplyType.IMAGE, image), None
+        
         if err is not None:
             logger.error("[COZE] reply error={}".format(err))
             return Reply(ReplyType.ERROR, "我暂时遇到了一些问题，请您稍后重试~")
+            
         logger.debug(
-            "[COZE] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
+            "[COZE] new_query={}, session_id={}, reply_cont={}, completion_tokens={}， image_urls={}".format(
                 session.messages,
                 session.get_session_id(),
                 answer,
                 completion_tokens,
+                image_urls
             )
         )
-        return Reply(ReplyType.TEXT, answer), None
+        return text_reply, None
