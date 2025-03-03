@@ -149,7 +149,7 @@ class ByteDanceCozeBot(Bot):
     def _get_completion_content(self, messages: list):
         answer = None
         for message in messages:
-            if message.type == MessageType.ANSWER:
+            if message.type == MessageType.ANSWER and message.context_type == MessageType.TEXT:
                 answer = message.content
                 break
         if not answer:
