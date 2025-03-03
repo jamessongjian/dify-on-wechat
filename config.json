@@ -1,7 +1,7 @@
 {
-  "coze_api_base": "https://api.coze.cn",     # coze base url
-  "coze_api_key": "pat_jO2foFiGGJMyCYdQoATRmiGtt9TxDDDYPIjua99eh5VleNI09jRDJCMZ3FgZxdu9",                      # coze api key
-  "coze_bot_id": "7475272287328108579", # 根据url获取coze_bot_id https://www.coze.cn/space/{space_id}/bot/{bot_id}
+  "coze_api_base": "https://api.coze.cn",
+  "coze_api_key": "pat_jO2foFiGGJMyCYdQoATRmiGtt9TxDDDYPIjua99eh5VleNI09jRDJCMZ3FgZxdu9",
+  "coze_bot_id": "7475272287328108579", 
   "model": "coze",
   "channel_type": "gewechat",
   "gewechat_app_id": "",
