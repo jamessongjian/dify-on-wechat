@@ -14,7 +14,7 @@ from config import conf
 from common import memory
 from common.utils import parse_markdown_text
 from common.tmp_dir import TmpDir
-from cozepy import MessageType,Message
+from cozepy import MessageType,Message, MessageContentType
 
 class ByteDanceCozeBot(Bot):
     def __init__(self):
@@ -149,7 +149,7 @@ class ByteDanceCozeBot(Bot):
     def _get_completion_content(self, messages: list):
         answer = None
         for message in messages:
-            if message.type == MessageType.ANSWER and message.context_type == MessageType.TEXT:
+            if message.type == MessageType.ANSWER and message.content.type == MessageContentType.TEXT:
                 answer = message.content
                 break
         if not answer:
