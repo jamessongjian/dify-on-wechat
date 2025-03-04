@@ -36,10 +36,10 @@ class CozeClient(object):
 
     def create_chat_message(self, bot_id: str, query: str, additional_messages: List[Message], session: CozeSession):
         if additional_messages is None:
-            user_prefix = f"{session.get_user_id()}说: "
+            user_prefix = f"{session.get_user_nickname()}说: "
             additional_messages = [Message.build_user_question_text(user_prefix + query)]
         else:
-            user_prefix = f"{session.get_user_id()}说: "
+            user_prefix = f"{session.get_user_nickname()}说: "
             additional_messages.append(Message.build_user_question_text(user_prefix + query))
         return self._send_chat(bot_id, session.get_user_id(), additional_messages, session)
 

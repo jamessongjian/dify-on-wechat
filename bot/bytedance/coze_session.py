@@ -8,6 +8,7 @@ class CozeSession(object):
     def __init__(self, session_id: str, user_id: str, group_id: str = None, conversation_id=None, system_prompt=None):
         self.__session_id = session_id
         self.__user_id = user_id
+        self.__user_nickname = None  # 添加用户昵称字段
         self.__group_id = group_id  # 添加群组ID
         self.__conversation_id = conversation_id
         self.__user_message_counter = 0
@@ -19,7 +20,7 @@ class CozeSession(object):
             self.system_prompt = system_prompt
 
     def __str__(self):
-        return f"CozeSession(session_id={self.__session_id}, user_id={self.__user_id}, group_id={self.__group_id}, conversation_id={self.__conversation_id}, messages_count={len(self.message_history)})"
+        return f"CozeSession(session_id={self.__session_id}, user_id={self.__user_id}, user_nickname={self.__user_nickname}, group_id={self.__group_id}, conversation_id={self.__conversation_id}, messages_count={len(self.message_history)})"
 
     def get_group_id(self):
         """获取群组ID"""
@@ -68,6 +69,14 @@ class CozeSession(object):
 
     def get_user_id(self):
         return self.__user_id
+
+    def get_user_nickname(self):
+        """获取用户昵称"""
+        return self.__user_nickname if self.__user_nickname else self.__user_id
+
+    def set_user_nickname(self, nickname: str):
+        """设置用户昵称"""
+        self.__user_nickname = nickname
 
     def get_conversation_id(self):
         return self.__conversation_id
