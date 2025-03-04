@@ -73,6 +73,13 @@ class ByteDanceCozeBot(Bot):
             # 创建或获取会话，传入群组ID
             session = self.sessions.session_query(query, user_id, session_id, group_id)
             
+            # 设置用户昵称
+            if channel_type in ["wx", "wework", "gewechat"]:
+                nickname = context["msg"].other_user_nickname
+                if nickname is None or nickname == '':
+                    nickname = context["msg"].actual_user_nickname
+                session.set_user_nickname(nickname)
+            
             # 如果是群聊，设置conversation_id
             if group_id:
                 session.set_conversation_id(self.group_conversations[group_id])
