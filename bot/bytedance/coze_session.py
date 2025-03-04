@@ -46,9 +46,11 @@ class CozeSession(object):
 
     def add_assistant_message(self, content: str):
         """添加助手消息"""
+        # 在助手消息前加上标识
+        assistant_prefix = "助手说: "
         message = Message(
             role=MessageRole.ASSISTANT,
-            content=content,
+            content=assistant_prefix + content,
             content_type=MessageContentType.TEXT
         )
         self.add_message(message)
@@ -115,7 +117,7 @@ class CozeSessionManager(object):
         处理用户查询，支持群聊
         """
         session = self._build_session(session_id, user_id, group_id)
-        session.add_user_message(query)
+        #session.add_user_message(query)
         return session
 
     def session_reply(self, reply, user_id, session_id, group_id=None, total_tokens=None):
