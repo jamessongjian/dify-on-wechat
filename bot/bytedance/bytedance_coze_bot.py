@@ -46,9 +46,9 @@ class ByteDanceCozeBot(Bot):
             channel_type = conf().get("channel_type", "wx")
             user_id = None
             if channel_type in ["wx", "wework", "gewechat"]:
-                user_id = context["msg"].other_user_nickname
+                user_id = context["msg"].other_user_id
                 if user_id is None or user_id == '':
-                    user_id = context["msg"].actual_user_nickname
+                    user_id = context["msg"].actual_user_id
             elif channel_type in ["wechatcom_app", "wechatmp", "wechatmp_service", "wechatcom_service"]:
                 user_id = context["msg"].other_user_id
                 if user_id is None or user_id == '':
@@ -75,9 +75,14 @@ class ByteDanceCozeBot(Bot):
             
             # 设置用户昵称
             if channel_type in ["wx", "wework", "gewechat"]:
-                nickname = context["msg"].other_user_nickname
-                if nickname is None or nickname == '':
+                if context.get("isgroup", False):
+                    # 群聊场景使用发消息者的昵称
                     nickname = context["msg"].actual_user_nickname
+                else:
+                    # 私聊场景使用对方的昵称
+                    nickname = context["msg"].other_user_nickname
+                if nickname is None or nickname == '':
+                    nickname = "unknown"
                 session.set_user_nickname(nickname)
             
             # 如果是群聊，设置conversation_id
