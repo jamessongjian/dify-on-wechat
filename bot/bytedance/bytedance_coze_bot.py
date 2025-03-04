@@ -195,7 +195,7 @@ class ByteDanceCozeBot(Bot):
         completion_tokens = len(answer)
         prompt_tokens = 0
         for message in messages:
-            prompt_tokens += len(message["content"])
+            prompt_tokens += len(message.content)
         return completion_tokens, prompt_tokens + completion_tokens
 
     def _get_upload_files(self, session: CozeSession):
