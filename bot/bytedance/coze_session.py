@@ -38,24 +38,6 @@ class CozeSession(object):
     def set_conversation_id(self, conversation_id):
         self.__conversation_id = conversation_id
 
-    def get_session(self, session_id, user):
-        session = self._build_session(session_id, user)
-        return session
-
-'''
-    def _build_session(self, session_id: str, user: str):
-        """
-        如果session_id不在sessions中，创建一个新的session并添加到sessions中
-        """
-        if session_id is None:
-            return self.sessioncls(session_id, user)
-
-        if session_id not in self.sessions:
-            self.sessions[session_id] = self.sessioncls(session_id, user)
-        session = self.sessions[session_id]
-        return session
-'''
-
     def count_user_message(self):
         if conf().get("coze_conversation_max_messages", 5) <= 0:
             # 当设置的最大消息数小于等于0，则不限制
@@ -64,7 +46,6 @@ class CozeSession(object):
             self.__user_message_counter = 0
             # FIXME: coze目前不支持设置历史消息长度，暂时使用超过5条清空会话的策略，缺点是没有滑动窗口，会突然丢失历史消息
             self.__conversation_id = ''
-
         self.__user_message_counter += 1
 
 
@@ -79,12 +60,8 @@ class CozeSessionManager(object):
         self.session_args = session_args
 
     def _build_session(self, session_id: str, user_id: str, system_prompt=None):
-        """
-        如果session_id不在sessions中，创建一个新的session并添加到sessions中
-        """
         if session_id is None:
             return self.sessioncls(session_id, user_id, system_prompt, **self.session_args)
-
         if session_id not in self.sessions:
             self.sessions[session_id] = self.sessioncls(session_id, user_id, system_prompt, **self.session_args)
         session = self.sessions[session_id]
@@ -93,12 +70,6 @@ class CozeSessionManager(object):
     def session_query(self, query, user_id, session_id):
         session = self._build_session(session_id, user_id)
         session.add_query(query)
-        # try:
-        #     max_tokens = conf().get("conversation_max_tokens", 1000)
-        #     total_tokens = session.discard_exceeding(max_tokens, None)
-        #     logger.debug("prompt tokens used={}".format(total_tokens))
-        # except Exception as e:
-        #     logger.warning("Exception when counting tokens precisely for prompt: {}".format(str(e)))
         return session
 
     def session_reply(self, reply, user_id, session_id, total_tokens=None):
@@ -111,10 +82,6 @@ class CozeSessionManager(object):
         except Exception as e:
             logger.warning("Exception when counting tokens precisely for session: {}".format(str(e)))
         return session
-
-    # def get_session(self, session_id, user_id):
-    #     session = self._build_session(session_id, user_id)
-    #     return session
 
     def clear_session(self, session_id):
         if session_id in self.sessions:
