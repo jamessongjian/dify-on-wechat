@@ -15,6 +15,9 @@ class CozeSession(object):
         else:
             self.system_prompt = system_prompt
 
+    def __str__(self):
+        return f"CozeSession(session_id={self.__session_id}, user_id={self.__user_id}, conversation_id={self.__conversation_id}, messages_count={len(self.messages)})"
+
     def add_query(self, query):
         user_item = {"role": "user", "content": query}
         self.messages.append(user_item)
@@ -39,6 +42,7 @@ class CozeSession(object):
         session = self._build_session(session_id, user)
         return session
 
+'''
     def _build_session(self, session_id: str, user: str):
         """
         如果session_id不在sessions中，创建一个新的session并添加到sessions中
@@ -50,6 +54,7 @@ class CozeSession(object):
             self.sessions[session_id] = self.sessioncls(session_id, user)
         session = self.sessions[session_id]
         return session
+'''
 
     def count_user_message(self):
         if conf().get("coze_conversation_max_messages", 5) <= 0:
