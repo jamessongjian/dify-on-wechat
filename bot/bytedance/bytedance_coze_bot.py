@@ -32,6 +32,8 @@ class ByteDanceCozeBot(Bot):
             logger.error("[COZE] coze_bot_id is not set")
             raise Exception("coze_bot_id is not set")
         self.coze_bot_id = coze_bot_id
+        # 存储群组ID和conversation_id的映射
+        self.group_conversations = {}
 
     def reply(self, query, context: Context = None):
         # acquire reply content
@@ -54,7 +56,21 @@ class ByteDanceCozeBot(Bot):
             logger.debug(f"[COZE] user_id={user_id}")
             session_id = context["session_id"]
             session = self.sessions.session_query(query, user_id, session_id)
-            logger.debug(f"[COZE] session={session} query={query}")
+
+            # 处理群聊的conversation_id
+            if context.get("isgroup", False):
+                group_id = context["msg"].other_user_id
+                if group_id not in self.group_conversations:
+                    # 如果是新的群组,创建新的conversation
+                    chat_client = CozeClient(self.coze_api_key, self.coze_api_base)
+                    conversation = chat_client.coze.conversations.create()
+                    self.group_conversations[group_id] = conversation.id
+                    logger.info(f"[COZE] Created new conversation for group {group_id}: {conversation.id}")
+                # 设置session的conversation_id
+                session.set_conversation_id(self.group_conversations[group_id])
+                logger.debug(f"[COZE] Using conversation_id {self.group_conversations[group_id]} for group {group_id}")
+
+            logger.info(f"[COZE] session={session} query={query}")
             reply, err = self._reply(query, session, context)
             if err != None:
                 error_msg = conf().get("error_reply", "我暂时遇到了一些问题，请您稍后重试~")
@@ -254,7 +270,7 @@ class ByteDanceCozeBot(Bot):
             logger.error("[COZE] reply error={}".format(err))
             return Reply(ReplyType.ERROR, "我暂时遇到了一些问题，请您稍后重试~")
             
-        logger.debug(
+        logger.info(
             "[COZE] new_query={}, session_id={}, reply_cont={}, completion_tokens={}， image_urls={}".format(
                 session.messages,
                 session.get_session_id(),
