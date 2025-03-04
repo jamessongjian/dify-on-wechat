@@ -14,7 +14,7 @@ from config import conf
 from common import memory
 from common.utils import parse_markdown_text
 from common.tmp_dir import TmpDir
-from cozepy import MessageType,Message, MessageContentType
+from cozepy import MessageType, Message, MessageContentType, MessageRole
 
 class ByteDanceCozeBot(Bot):
     def __init__(self):
@@ -41,6 +41,8 @@ class ByteDanceCozeBot(Bot):
             if context.type == ContextType.IMAGE_CREATE:
                 query = conf().get('image_create_prefix', ['画'])[0] + query
             logger.info("[COZE] query={}".format(query))
+            
+            # 获取用户ID
             channel_type = conf().get("channel_type", "wx")
             user_id = None
             if channel_type in ["wx", "wework", "gewechat"]:
@@ -53,11 +55,12 @@ class ByteDanceCozeBot(Bot):
                     user_id = "default"
             else:
                 return Reply(ReplyType.ERROR, f"unsupported channel type: {channel_type}, now coze only support wx, wechatcom_app, wechatmp, wechatmp_service channel")
+            
             logger.debug(f"[COZE] user_id={user_id}")
             session_id = context["session_id"]
-            session = self.sessions.session_query(query, user_id, session_id)
-
-            # 处理群聊的conversation_id
+            
+            # 处理群聊
+            group_id = None
             if context.get("isgroup", False):
                 group_id = context["msg"].other_user_id
                 if group_id not in self.group_conversations:
@@ -66,7 +69,12 @@ class ByteDanceCozeBot(Bot):
                     conversation = chat_client.coze.conversations.create()
                     self.group_conversations[group_id] = conversation.id
                     logger.info(f"[COZE] Created new conversation for group {group_id}: {conversation.id}")
-                # 设置session的conversation_id
+
+            # 创建或获取会话，传入群组ID
+            session = self.sessions.session_query(query, user_id, session_id, group_id)
+            
+            # 如果是群聊，设置conversation_id
+            if group_id:
                 session.set_conversation_id(self.group_conversations[group_id])
                 logger.debug(f"[COZE] Using conversation_id {self.group_conversations[group_id]} for group {group_id}")
 
@@ -82,13 +90,23 @@ class ByteDanceCozeBot(Bot):
 
     def _reply(self, query, session: CozeSession, context: Context):
         chat_client = CozeClient(self.coze_api_key, self.coze_api_base)
-        additional_messages = self._get_upload_files(session)
+        
+        # 获取历史消息
+        additional_messages = session.get_message_history()
+        
+        # 添加文件上传消息
+        file_messages = self._get_upload_files(session)
+        if file_messages:
+            additional_messages.extend(file_messages)
+            
+        # 发送消息并获取回复
         messages = chat_client.create_chat_message(
             bot_id=self.coze_bot_id,
             query=query,
             additional_messages=additional_messages,
             session=session
         )
+        
         if self.show_img_file:
             return self.get_parsed_reply(messages, context)
         else:
@@ -240,7 +258,11 @@ class ByteDanceCozeBot(Bot):
         answer, err = self._get_completion_content(messages)
         if err is not None:
             return None, err
-        completion_tokens, total_tokens = self._calc_tokens(session.messages, answer)
+        
+        # 将助手的回复添加到历史记录
+        session.add_assistant_message(answer)
+        
+        completion_tokens, total_tokens = self._calc_tokens(session.message_history, answer)
 
         # 处理图片URL
         import re
@@ -264,7 +286,7 @@ class ByteDanceCozeBot(Bot):
             for image_url in image_urls:
                 image = self._download_image(image_url)
                 if image:
-                    return  Reply(ReplyType.IMAGE, image), None
+                    return Reply(ReplyType.IMAGE, image), None
         
         if err is not None:
             logger.error("[COZE] reply error={}".format(err))
@@ -272,7 +294,7 @@ class ByteDanceCozeBot(Bot):
             
         logger.info(
             "[COZE] new_query={}, session_id={}, reply_cont={}, completion_tokens={}， image_urls={}".format(
-                session.messages,
+                session.message_history,
                 session.get_session_id(),
                 answer,
                 completion_tokens,
