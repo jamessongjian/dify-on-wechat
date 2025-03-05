@@ -134,7 +134,8 @@ class ChatChannel(Channel):
                         logger.info("[chat_channel]receive group voice, but checkprefix didn't match")
                     # 群聊消息不匹配前缀时，仍然记录消息但不触发回复
                     context["need_reply"] = False
-                    return context
+                    #return context
+                    return None
             else:  # 单聊
                 nick_name = context["msg"].from_user_nickname
                 if nick_name and nick_name in nick_name_black_list:
