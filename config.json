@@ -12,5 +12,6 @@
   "single_chat_prefix": [""],
   "single_chat_reply_prefix": "",
   "group_chat_prefix": ["@一休"],
-  "group_name_white_list": ["ALL_GROUP"]
+  "group_name_white_list": ["ALL_GROUP"],
+  "debug": true
 }

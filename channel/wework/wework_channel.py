@@ -122,7 +122,7 @@ def _check(func):
 @wework.msg_register(
     [ntwork.MT_RECV_TEXT_MSG, ntwork.MT_RECV_IMAGE_MSG, 11072, ntwork.MT_RECV_LINK_CARD_MSG,ntwork.MT_RECV_FILE_MSG, ntwork.MT_RECV_VOICE_MSG])
 def all_msg_handler(wework_instance: ntwork.WeWork, message):
-    logger.debug(f"收到消息: {message}")
+    logger.info(f"收到消息: {message}")
     if WeworkChannel().inited and 'data' in message:
         sender = message['data'].get("sender", None)
         if sender and sender == WeworkChannel().user_id:

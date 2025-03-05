@@ -200,7 +200,7 @@ class ChatChannel(Channel):
                     # 记录群消息到coze session
                     if context.get("isgroup", False) and context.get("is_shared_session_group", False):
                         super().build_reply_content(context.content, context)
-                    return None
+                    return Reply(ReplyType.TEXT, " ")  # 返回一个包含空格的回复，而不是空字符串
                 reply = super().build_reply_content(context.content, context)
             elif context.type == ContextType.VOICE:  # 语音消息
                 cmsg = context["msg"]
