@@ -85,6 +85,7 @@ class CozeSession(object):
         self.__conversation_id = conversation_id
 
     def count_user_message(self):
+        """计数用户消息，超过限制时清空会话"""
         if conf().get("coze_conversation_max_messages", 5) <= 0:
             # 当设置的最大消息数小于等于0，则不限制
             return

@@ -54,7 +54,7 @@ class ByteDanceCozeBot(Bot):
                 if user_id is None or user_id == '':
                     user_id = "default"
             else:
-                return Reply(ReplyType.ERROR, f"unsupported channel type: {channel_type}, now coze only support wx, wechatcom_app, wechatmp, wechatmp_service channel")
+                return Reply(ReplyType.ERROR, f"unsupported channel type: {channel_type}")
             
             logger.debug(f"[COZE] user_id={user_id}")
             session_id = context["session_id"]
@@ -91,6 +91,13 @@ class ByteDanceCozeBot(Bot):
                 logger.debug(f"[COZE] Using conversation_id {self.group_conversations[group_id]} for group {group_id}")
 
             logger.info(f"[COZE] session={session} query={query}")
+
+            # 如果不需要回复，只记录消息
+            if context.get("need_reply", True) is False:
+                logger.debug("[COZE] message need not reply, just record")
+                session.add_user_message(query)
+                return None
+
             reply, err = self._reply(query, session, context)
             if err != None:
                 error_msg = conf().get("error_reply", "我暂时遇到了一些问题，请您稍后重试~")

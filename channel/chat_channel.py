@@ -132,7 +132,9 @@ class ChatChannel(Channel):
                 if not flag:
                     if context["origin_ctype"] == ContextType.VOICE:
                         logger.info("[chat_channel]receive group voice, but checkprefix didn't match")
-                    return None
+                    # 群聊消息不匹配前缀时，仍然记录消息但不触发回复
+                    context["need_reply"] = False
+                    return context
             else:  # 单聊
                 nick_name = context["msg"].from_user_nickname
                 if nick_name and nick_name in nick_name_black_list:
@@ -192,6 +194,13 @@ class ChatChannel(Channel):
             logger.debug("[chat_channel] ready to handle context: type={}, content={}".format(context.type, context.content))
             if context.type == ContextType.TEXT or context.type == ContextType.IMAGE_CREATE:  # 文字和图片消息
                 context["channel"] = e_context["channel"]
+                # 检查是否需要回复
+                if context.get("need_reply", True) is False:
+                    logger.debug("[chat_channel] message need not reply, just record")
+                    # 记录群消息到coze session
+                    if context.get("isgroup", False) and context.get("is_shared_session_group", False):
+                        super().build_reply_content(context.content, context)
+                    return None
                 reply = super().build_reply_content(context.content, context)
             elif context.type == ContextType.VOICE:  # 语音消息
                 cmsg = context["msg"]
