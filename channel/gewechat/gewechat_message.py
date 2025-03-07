@@ -370,6 +370,7 @@ class GeWeChatMessage(ChatMessage):
                         self.content = f"「{displayname}: {quoted_content}」----------\n{title}"
                     else:
                         self.content = content_xml
+                    logger.debug(f"[gewechat] content: {self.content}, refermsg: {refermsg}")
                 elif msg_type is not None and msg_type.text == '5':  # 可能是公众号文章
                     title = appmsg.find('title').text if appmsg.find('title') is not None else "无标题"
                     if "加入群聊" in title:
