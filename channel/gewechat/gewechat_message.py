@@ -367,7 +367,9 @@ class GeWeChatMessage(ChatMessage):
                         displayname = refermsg.find('displayname').text
                         quoted_content = refermsg.find('content').text
                         title = appmsg.find('title').text
-                        self.content = f"「{displayname}: {quoted_content}」----------\n{title}"
+                        if appmsg.find('url') is not None:
+                            quoted_content = f" url={appmsg.find('url').text}"
+                        self.content = f"「{title} {displayname}: {quoted_content}」----------\n"
                     else:
                         self.content = content_xml
                     logger.debug(f"[gewechat] content: {self.content}, refermsg: {refermsg}")
