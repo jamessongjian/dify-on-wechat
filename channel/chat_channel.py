@@ -134,6 +134,7 @@ class ChatChannel(Channel):
                         logger.info("[chat_channel]receive group voice, but checkprefix didn't match")
                     # 群聊消息不匹配前缀时，仍然记录消息但不触发回复
                     context["need_reply"] = False
+                    logger.info(f"match_prefix:'{match_prefix}',context:'{context}', not need reply")
                     #return context
                     return None
             else:  # 单聊
