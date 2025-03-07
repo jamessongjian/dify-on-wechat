@@ -111,7 +111,11 @@ class CozeSessionManager(object):
         """
         构建会话，如果是群聊则使用 group_id 作为 key
         """
-        key = f"{group_id}:{session_id}" if group_id else session_id
+        #key = f"{group_id}:{session_id}" if group_id else session_id
+        if group_id is None:
+            key = f"{session_id}"
+        else:
+            key = f"{group_id}"
         
         if session_id is None:
             return self.sessioncls(session_id, user_id, group_id, system_prompt, **self.session_args)
